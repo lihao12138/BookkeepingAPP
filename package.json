@@ -1,0 +1,71 @@
+{
+  "name": "heima-app",
+  "version": "1.0.0",
+  "description": "黑马记账 - 个人轻量级记账工具",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.heima.accounting",
+    "productName": "黑马记账",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.icns",
+      "category": "public.app-category.finance"
+    },
+    "dmg": {
+      "title": "安装 黑马记账",
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.0",
+    "echarts": "^5.5.0",
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^5.4.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.0",
+    "concurrently": "^8.2.0",
+    "wait-on": "^7.2.0",
+    "@electron/rebuild": "^3.6.0"
+  },
+  "keywords": [],
+  "author": "黑马",
+  "license": "ISC",
+  "allowScripts": {
+    "better-sqlite3@11.10.0": true,
+    "electron@31.7.7": true,
+    "esbuild@0.21.5": true,
+    "vue-demi@0.14.10": true
+  }
+}
