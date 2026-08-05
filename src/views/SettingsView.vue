@@ -35,7 +35,7 @@
       <div class="about-info">
         <div class="info-row">
           <span class="info-label">应用名称</span>
-          <span class="info-value">黑马记账</span>
+          <span class="info-value">记账APP</span>
         </div>
         <div class="info-row">
           <span class="info-label">版本号</span>
@@ -75,8 +75,8 @@
               </div>
             </div>
             <!-- 子分类列表 -->
-            <div v-if="getChildCategories(parent.id).length > 0" class="cat-children">
-              <div v-for="child in getChildCategories(parent.id)" :key="child.id" class="cat-row cat-child-row">
+            <div v-if="getChildCategories(parent).length > 0" class="cat-children">
+              <div v-for="child in getChildCategories(parent)" :key="child.id" class="cat-row cat-child-row">
                 <span class="cat-icon cat-icon-sm">{{ child.icon }}</span>
                 <span class="cat-name cat-name-sm">{{ child.name }}</span>
                 <span v-if="!child.is_custom" class="cat-badge cat-badge-locked cat-badge-sm">🔒</span>
@@ -138,8 +138,8 @@
         <div class="modal-message">
           确定要删除分类「{{ deleteTarget?.icon }} {{ deleteTarget?.name }}」吗？
           <br /><br />
-          <span v-if="deleteTarget?.parent_id === 0 && getChildCategories(deleteTarget?.id).length > 0">
-            该大类下还有 {{ getChildCategories(deleteTarget?.id).length }} 个子分类，将一并删除。
+          <span v-if="deleteTarget?.parent_id === 0 && getChildCategories(deleteTarget).length > 0">
+            该大类下还有 {{ getChildCategories(deleteTarget).length }} 个子分类，将一并删除。
           </span>
           <span v-if="hasRecordsForCategory(deleteTarget?.id)">
             该分类下还有记账记录，记录也将一并删除。
@@ -215,8 +215,9 @@ const parentCategories = computed(() => {
   return categories.value.filter(c => c.parent_id === 0)
 })
 
-function getChildCategories(parentId) {
-  return categories.value.filter(c => c.parent_id === parentId)
+function getChildCategories(parent) {
+  // parent 是分类对象，用 sort_order 匹配子分类的 parent_id
+  return categories.value.filter(c => c.parent_id === parent.sort_order)
 }
 
 function hasRecordsForCategory(catId) {
@@ -248,7 +249,7 @@ function openAddParent() {
 function openAddChild(parent) {
   editMode.value = 'addChild'
   editModalTitle.value = `在「${parent.icon} ${parent.name}」下添加子分类`
-  editForm.value = { name: '', icon: '📌', parent_id: parent.id }
+  editForm.value = { name: '', icon: '📌', parent_id: parent.sort_order }
   editTargetId.value = null
   showEditModal.value = true
 }
@@ -278,7 +279,10 @@ async function handleSaveCategory() {
     await addCategory(editForm.value.name.trim(), 0, editForm.value.icon, maxSort + 1)
   } else if (editMode.value === 'addChild') {
     // 计算新子类的 sort_order
-    const siblings = getChildCategories(editForm.value.parent_id)
+    // editForm.value.parent_id 存的是父分类的 sort_order，需要找到父分类对象
+    // 必须同时限定 parent_id===0，因为子分类的 sort_order 也从1开始会冲突
+    const parentCat = categories.value.find(c => c.sort_order === editForm.value.parent_id && c.parent_id === 0)
+    const siblings = parentCat ? getChildCategories(parentCat) : []
     const maxSort = siblings.reduce((max, c) => Math.max(max, c.sort_order), 0)
     await addCategory(editForm.value.name.trim(), editForm.value.parent_id, editForm.value.icon, maxSort + 1)
   } else if (editMode.value === 'edit') {

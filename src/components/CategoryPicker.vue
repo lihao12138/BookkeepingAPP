@@ -6,7 +6,7 @@
         v-for="cat in parentCategories"
         :key="cat.id"
         class="category-item"
-        :class="{ active: selectedParentId === cat.id }"
+        :class="{ active: selectedParentSortOrder === cat.sort_order }"
         @click="selectParent(cat)"
       >
         <span class="cat-icon">{{ cat.icon }}</span>
@@ -52,7 +52,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const selectedParentId = ref(null)
+const selectedParentSortOrder = ref(null)
 const selectedChildId = ref(null)
 
 const parentCategories = computed(() => {
@@ -60,22 +60,23 @@ const parentCategories = computed(() => {
 })
 
 const selectedParent = computed(() => {
-  return props.categories.find(c => c.id === selectedParentId.value) || null
+  // 必须同时匹配 sort_order 和 parent_id===0，因为子分类的 sort_order 也从1开始，会和大类冲突
+  return props.categories.find(c => c.sort_order === selectedParentSortOrder.value && c.parent_id === 0) || null
 })
 
 const childCategories = computed(() => {
-  if (!selectedParentId.value) return []
-  return props.categories.filter(c => c.parent_id === selectedParentId.value)
+  if (!selectedParentSortOrder.value) return []
+  return props.categories.filter(c => c.parent_id === selectedParentSortOrder.value)
 })
 
 function selectParent(cat) {
-  const children = props.categories.filter(c => c.parent_id === cat.id)
+  const children = props.categories.filter(c => c.parent_id === cat.sort_order)
   if (children.length > 0) {
-    selectedParentId.value = cat.id
+    selectedParentSortOrder.value = cat.sort_order
     selectedChildId.value = null
   } else {
     // 没有子分类，直接选中（如"其他"）
-    selectedParentId.value = cat.id
+    selectedParentSortOrder.value = cat.sort_order
     selectedChildId.value = cat.id
     emit('update:modelValue', cat.id)
   }
@@ -87,7 +88,7 @@ function selectChild(cat) {
 }
 
 function goBack() {
-  selectedParentId.value = null
+  selectedParentSortOrder.value = null
   selectedChildId.value = null
   emit('update:modelValue', null)
 }
@@ -95,17 +96,17 @@ function goBack() {
 // 外部改变值时同步
 watch(() => props.modelValue, (val) => {
   if (val === null) {
-    selectedParentId.value = null
+    selectedParentSortOrder.value = null
     selectedChildId.value = null
   } else {
     // 根据选中的分类ID同步内部状态
     const cat = props.categories.find(c => c.id === val)
     if (cat) {
       if (cat.parent_id === 0) {
-        selectedParentId.value = cat.id
+        selectedParentSortOrder.value = cat.sort_order
         selectedChildId.value = cat.id
       } else {
-        selectedParentId.value = cat.parent_id
+        selectedParentSortOrder.value = cat.parent_id
         selectedChildId.value = cat.id
       }
     }

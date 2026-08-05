@@ -32,8 +32,8 @@
         v-for="cat in parentCategories"
         :key="cat.id"
         class="filter-tag"
-        :class="{ active: filterCategory === cat.id }"
-        @click="filterCategory = cat.id"
+        :class="{ active: filterCategory === cat.sort_order }"
+        @click="filterCategory = cat.sort_order"
       >
         {{ cat.icon }} {{ cat.name }}
       </button>
@@ -89,12 +89,23 @@ const parentCategories = computed(() => {
   return categories.value.filter(c => c.parent_id === 0)
 })
 
-const filteredRecords = computed(() => {
-  if (filterCategory.value === null) return records.value
-  return records.value.filter(r => {
-    // 匹配一级或二级分类
-    return r.category_id === filterCategory.value || r.parent_id === filterCategory.value
+const filterCategoryIds = computed(() => {
+  if (filterCategory.value === null) return null
+  // filterCategory.value 存储的是大类的 sort_order
+  // 收集该大类自身的 id 和所有子分类的 id
+  // 必须同时限定 parent_id===0，因为子分类的 sort_order 也从1开始会冲突
+  const parentCat = categories.value.find(c => c.sort_order === filterCategory.value && c.parent_id === 0)
+  if (!parentCat) return null
+  const ids = new Set([parentCat.id])
+  categories.value.forEach(c => {
+    if (c.parent_id === filterCategory.value) ids.add(c.id)
   })
+  return ids
+})
+
+const filteredRecords = computed(() => {
+  if (filterCategoryIds.value === null) return records.value
+  return records.value.filter(r => filterCategoryIds.value.has(r.category_id))
 })
 
 onMounted(async () => {

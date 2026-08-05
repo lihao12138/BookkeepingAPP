@@ -11,7 +11,7 @@ function createWindow() {
     height: 720,
     minWidth: 900,
     minHeight: 600,
-    title: '黑马记账',
+    title: '记账APP',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

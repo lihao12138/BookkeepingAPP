@@ -1,7 +1,7 @@
 {
   "name": "heima-app",
   "version": "1.0.0",
-  "description": "黑马记账 - 个人轻量级记账工具",
+  "description": "记账APP - 个人轻量级记账工具",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -11,8 +11,8 @@
     "preview": "vite preview"
   },
   "build": {
-    "appId": "com.heima.accounting",
-    "productName": "黑马记账",
+    "appId": "com.jizhang.app",
+    "productName": "记账APP",
     "directories": {
       "output": "release"
     },
@@ -26,7 +26,7 @@
       "category": "public.app-category.finance"
     },
     "dmg": {
-      "title": "安装 黑马记账",
+      "title": "安装 记账APP",
       "contents": [
         { "x": 130, "y": 220 },
         { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
@@ -60,7 +60,7 @@
     "@electron/rebuild": "^3.6.0"
   },
   "keywords": [],
-  "author": "黑马",
+  "author": "ll6535211",
   "license": "ISC",
   "allowScripts": {
     "better-sqlite3@11.10.0": true,

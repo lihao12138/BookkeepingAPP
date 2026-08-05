@@ -78,7 +78,9 @@ export async function deleteCategory(id) {
 function enrichRecord(record, categories) {
   const cat = categories.find(c => c.id === record.category_id)
   if (cat) {
-    const parent = categories.find(c => c.id === cat.parent_id)
+    // cat.parent_id 存的是大类的 sort_order，需要用 sort_order 匹配
+    // 必须同时限定 parent_id===0，因为子分类的 sort_order 也从1开始会冲突
+    const parent = categories.find(c => c.sort_order === cat.parent_id && c.parent_id === 0)
     return {
       ...record,
       category_name: cat.name,

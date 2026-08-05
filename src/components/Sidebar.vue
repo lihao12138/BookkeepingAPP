@@ -1,8 +1,8 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-logo">🐴</span>
-      <span class="sidebar-title">黑马记账</span>
+      <span class="sidebar-logo">💰</span>
+      <span class="sidebar-title">记账APP</span>
     </div>
     <nav class="sidebar-nav">
       <router-link
