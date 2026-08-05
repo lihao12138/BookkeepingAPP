@@ -116,15 +116,22 @@ function getPercent(total) {
   return ((total / monthTotal.value) * 100).toFixed(1)
 }
 
-onMounted(async () => {
-  await loadData()
-})
-
 watch([year, month], async () => {
   await loadData()
 })
 
+function handleResize() {
+  if (pieChart) pieChart.resize()
+  if (barChart) barChart.resize()
+}
+
+onMounted(async () => {
+  window.addEventListener('resize', handleResize)
+  await loadData()
+})
+
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   if (pieChart) pieChart.dispose()
   if (barChart) barChart.dispose()
 })
@@ -177,13 +184,31 @@ function renderPieChart() {
         type: 'pie',
         radius: ['40%', '70%'],
         center: ['35%', '50%'],
-        avoidLabelOverlap: false,
+        avoidLabelOverlap: true,
         itemStyle: {
           borderRadius: 6,
           borderColor: '#fff',
           borderWidth: 2
         },
-        label: { show: false },
+        label: {
+          show: true,
+          formatter: (params) => {
+            // 占比小于 5% 的分类不显示标签（避免拥挤），在右侧 legend 中仍可看到
+            if (params.percent < 5) return ''
+            return `${params.name}\n${params.percent}%`
+          },
+          fontSize: 11,
+          color: '#555',
+          lineHeight: 16
+        },
+        labelLine: {
+          show: true,
+          length: 10,
+          length2: 15
+        },
+        labelLayout: {
+          hideOverlap: true
+        },
         emphasis: {
           label: {
             show: true,

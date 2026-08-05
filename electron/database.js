@@ -113,9 +113,17 @@ class AppDatabase {
         name TEXT NOT NULL,
         parent_id INTEGER NOT NULL DEFAULT 0,
         icon TEXT NOT NULL DEFAULT '',
-        sort_order INTEGER NOT NULL DEFAULT 0
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_custom INTEGER NOT NULL DEFAULT 0
       )
     `)
+
+    // 数据库迁移：为旧版本数据库添加 is_custom 列
+    const tableInfo = this.db.prepare("PRAGMA table_info(categories)").all()
+    const hasCustomCol = tableInfo.some(col => col.name === 'is_custom')
+    if (!hasCustomCol) {
+      this.db.exec('ALTER TABLE categories ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 0')
+    }
 
     // 创建记录表
     this.db.exec(`
@@ -134,7 +142,7 @@ class AppDatabase {
     const count = this.db.prepare('SELECT COUNT(*) as count FROM categories').get().count
     if (count === 0) {
       const insert = this.db.prepare(
-        'INSERT INTO categories (name, parent_id, icon, sort_order) VALUES (?, ?, ?, ?)'
+        'INSERT INTO categories (name, parent_id, icon, sort_order, is_custom) VALUES (?, ?, ?, ?, 0)'
       )
       const insertMany = this.db.transaction((categories) => {
         for (const cat of categories) {
@@ -148,6 +156,44 @@ class AppDatabase {
   // 获取所有分类
   getCategories() {
     return this.db.prepare('SELECT * FROM categories ORDER BY parent_id, sort_order').all()
+  }
+
+  // 添加自定义分类（is_custom = 1）
+  addCategory(name, parent_id, icon, sort_order) {
+    const stmt = this.db.prepare(
+      'INSERT INTO categories (name, parent_id, icon, sort_order, is_custom) VALUES (?, ?, ?, ?, 1)'
+    )
+    return stmt.run(name, parent_id, icon, sort_order).lastInsertRowid
+  }
+
+  // 修改自定义分类（仅允许修改 is_custom = 1 的分类）
+  updateCategory(id, name, icon) {
+    const cat = this.db.prepare('SELECT is_custom FROM categories WHERE id = ?').get(id)
+    if (!cat || !cat.is_custom) return { success: false, message: '预置分类不可修改' }
+    const result = this.db.prepare(
+      'UPDATE categories SET name = ?, icon = ? WHERE id = ? AND is_custom = 1'
+    ).run(name, icon, id)
+    return { success: result.changes > 0, message: result.changes > 0 ? '' : '修改失败' }
+  }
+
+  // 删除自定义分类（仅允许删除 is_custom = 1 的分类，级联删除子分类）
+  deleteCategory(id) {
+    const cat = this.db.prepare('SELECT is_custom FROM categories WHERE id = ?').get(id)
+    if (!cat || !cat.is_custom) return { success: false, message: '预置分类不可删除' }
+
+    const deleteChildren = this.db.prepare('DELETE FROM categories WHERE parent_id = ? AND is_custom = 1')
+    const deleteSelf = this.db.prepare('DELETE FROM categories WHERE id = ? AND is_custom = 1')
+    const deleteRecords = this.db.prepare('DELETE FROM records WHERE category_id IN (SELECT id FROM categories WHERE id = ? OR parent_id = ?)')
+
+    const transaction = this.db.transaction((catId) => {
+      const childChanges = deleteChildren.run(catId).changes
+      const recordChanges = deleteRecords.run(catId, catId).changes
+      const selfChanges = deleteSelf.run(catId).changes
+      return { childChanges, recordChanges, selfChanges }
+    })
+
+    const result = transaction(id)
+    return { success: true, message: '' }
   }
 
   // 添加记录
@@ -193,7 +239,9 @@ class AppDatabase {
     return this.db.prepare(
       `SELECT c.id, c.name, c.icon, COALESCE(SUM(r.amount), 0) as total, COUNT(*) as count
        FROM categories c
-       LEFT JOIN records r ON r.category_id = c.id AND r.date LIKE ?
+       LEFT JOIN records r ON (r.category_id = c.id OR r.category_id IN (
+         SELECT sc.id FROM categories sc WHERE sc.parent_id = c.id
+       )) AND r.date LIKE ?
        WHERE c.parent_id = 0
        GROUP BY c.id
        ORDER BY total DESC`
