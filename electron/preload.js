@@ -4,6 +4,9 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
   // 分类相关
   getCategories: () => ipcRenderer.invoke('db:getCategories'),
+  addCategory: (name, parent_id, icon, sort_order) => ipcRenderer.invoke('db:addCategory', name, parent_id, icon, sort_order),
+  updateCategory: (id, name, icon) => ipcRenderer.invoke('db:updateCategory', id, name, icon),
+  deleteCategory: (id) => ipcRenderer.invoke('db:deleteCategory', id),
 
   // 记账记录相关
   addRecord: (record) => ipcRenderer.invoke('db:addRecord', record),

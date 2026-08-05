@@ -62,6 +62,21 @@ ipcMain.handle('db:getCategories', () => {
   return db.getCategories()
 })
 
+// 添加自定义分类
+ipcMain.handle('db:addCategory', (event, name, parent_id, icon, sort_order) => {
+  return db.addCategory(name, parent_id, icon, sort_order)
+})
+
+// 修改自定义分类
+ipcMain.handle('db:updateCategory', (event, id, name, icon) => {
+  return db.updateCategory(id, name, icon)
+})
+
+// 删除自定义分类
+ipcMain.handle('db:deleteCategory', (event, id) => {
+  return db.deleteCategory(id)
+})
+
 // 添加记录
 ipcMain.handle('db:addRecord', (event, record) => {
   return db.addRecord(record)

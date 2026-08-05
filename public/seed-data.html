@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+// 注入测试数据到 localStorage，然后自动跳转回主页
+// 先清空旧数据再注入，避免重复
+const testRecords = [
+  // 餐饮饮食 子分类 (parent_id=1)
+  { id: 100001, category_id: 2, amount: 35, date: '2026-08-01', note: '早餐', created_at: '2026-08-01 08:00' },
+  { id: 100002, category_id: 3, amount: 45, date: '2026-08-02', note: '午餐', created_at: '2026-08-02 12:00' },
+  { id: 100003, category_id: 4, amount: 60, date: '2026-08-03', note: '晚餐', created_at: '2026-08-03 18:00' },
+  { id: 100004, category_id: 6, amount: 55, date: '2026-08-04', note: '奶茶', created_at: '2026-08-04 15:00' },
+  { id: 100005, category_id: 5, amount: 88, date: '2026-08-05', note: '零食', created_at: '2026-08-05 22:00' },
+  // 交通出行 子分类 (parent_id=2)
+  { id: 100006, category_id: 10, amount: 25, date: '2026-08-01', note: '地铁', created_at: '2026-08-01 07:30' },
+  { id: 100007, category_id: 11, amount: 50, date: '2026-08-04', note: '打车', created_at: '2026-08-04 21:00' },
+  // 居住生活 子分类 (parent_id=3)
+  { id: 100008, category_id: 19, amount: 200, date: '2026-08-05', note: '水费', created_at: '2026-08-05 10:00' },
+  // 购物消费 子分类 (parent_id=4)
+  { id: 100009, category_id: 28, amount: 150, date: '2026-08-03', note: '买衣服', created_at: '2026-08-03 14:00' },
+  // 医疗健康 子分类 (parent_id=5)
+  { id: 100010, category_id: 36, amount: 80, date: '2026-08-02', note: '买药', created_at: '2026-08-02 09:00' },
+  // 休闲娱乐 子分类 (parent_id=7)
+  { id: 100011, category_id: 47, amount: 120, date: '2026-08-05', note: '看电影', created_at: '2026-08-05 19:00' },
+  // 教育学习 子分类 (parent_id=6)
+  { id: 100012, category_id: 41, amount: 300, date: '2026-08-01', note: '买书', created_at: '2026-08-01 11:00' },
+];
+localStorage.setItem('heima_records', JSON.stringify(testRecords));
+document.body.innerHTML = '<h1>测试数据已注入！共 ' + testRecords.length + ' 条记录</h1><p>3秒后自动跳转到统计页面...</p>';
+setTimeout(() => { window.location.href = '/#/stats'; }, 3000);
+</script>
+</body>
+</html>
