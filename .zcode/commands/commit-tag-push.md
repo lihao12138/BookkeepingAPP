@@ -1,10 +1,10 @@
 ---
-description: 一键存档：提交所有改动 + 打中文 tag + 推送到 GitHub。用法 /存档 <tag名>
+description: 一键存档：提交所有改动 + 打中文 tag + 推送到 GitHub。用法 /commit-tag-push <tag名>
 argument-hint: <本次存档的tag名，比如：加了登录功能>
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git tag:*), Bash(git push:*), Bash(git log:*), Bash(git branch:*)
 ---
 
-# 存档命令
+# commit-tag-push 命令（存档：提交+打tag+推送）
 
 ## 用户输入的 tag 名
 $ARGUMENTS
@@ -14,7 +14,7 @@ $ARGUMENTS
 帮用户完成一次完整的"存档"流程，共 4 步。**全程不要中途停下问问题**，一气呵成做完。
 
 ### 第 0 步：检查参数
-- 看上面 `$ARGUMENTS`，如果为空（用户没填 tag 名），直接停下告诉用户：「要打 tag 需要起个名字，请这样用：`/存档 加了新功能`」，然后停止。
+- 看上面 `$ARGUMENTS`，如果为空（用户没填 tag 名），直接停下告诉用户：「要打 tag 需要起个名字，请这样用：`/commit-tag-push 加了新功能`」，然后停止。
 - 如果有内容，把它作为本次的 **tag 名**（可能含空格，是中文也没关系）。
 
 ### 第 1 步：看改动
