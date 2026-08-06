@@ -17,3 +17,6 @@ Thumbs.db
 
 # 日志文件
 *.log
+
+# ZCode 运行时临时计划草稿（commands/agents 等配置不在此列，仍需提交）
+.zcode/plans/
