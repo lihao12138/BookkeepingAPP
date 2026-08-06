@@ -24,6 +24,7 @@ const navItems = [
   { path: '/home', icon: '📝', label: '记一笔' },
   { path: '/bill', icon: '📋', label: '账单' },
   { path: '/stats', icon: '📊', label: '统计' },
+  { path: '/snake', icon: '🎮', label: '贪吃蛇' },
   { path: '/settings', icon: '⚙️', label: '设置' }
 ]
 </script>

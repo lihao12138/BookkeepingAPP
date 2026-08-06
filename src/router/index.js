@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import BillView from '../views/BillView.vue'
 import StatsView from '../views/StatsView.vue'
 import SettingsView from '../views/SettingsView.vue'
+import SnakeGameView from '../views/SnakeGameView.vue'
 
 const routes = [
   {
@@ -32,6 +33,12 @@ const routes = [
     name: 'Settings',
     component: SettingsView,
     meta: { title: '设置', icon: '⚙️' }
+  },
+  {
+    path: '/snake',
+    name: 'Snake',
+    component: SnakeGameView,
+    meta: { title: '贪吃蛇', icon: '🎮' }
   }
 ]
 
